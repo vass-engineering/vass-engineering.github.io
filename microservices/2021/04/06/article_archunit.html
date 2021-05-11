@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+<title>VASS Engineering</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="shortcut icon" href="/favicon.ico">
+<link href="/assets/css/styles.css" rel="stylesheet" />
+<meta name="description" content="VASS Engineering" />
+<meta name="keywords" content="VASS, Microservices, Frontend, Java" />
+
+</head>
+<body>
+    <header class="header grid-center">
+    <div class="header__container grid grid-middle">
+        <div class="col-3 col-middle" role="banner">
+            <h1 class="visually-hidden">Header</h1>
+            <img class="header__logo" src="/assets/img/logo-white.png" alt="Vass. Complex made simple">
+        </div>
+        <div class="col-9 col-bottom">
+            <nav class="main-menu" aria-label="Menú principal">
+                <ul class="main-menu__list" role="menubar">
+                    <li class="main-menu__item" role="none"><a href="/index.html" title="Volver al inicio" role="menuitem">Home</a></li>
+                    <li class="main-menu__item" role="none"><a href="/categorias.html" title="Todos las categorias" role="menuitem">Categorias</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</header>
+    <div class="sub-header grid-center">
+    <br>
+</div>
+    <main class="main grid-center">
+        <div class="main__container grid">
+            <section class="col-12">
+    <article class="grid article">
+        <div class="col-4">
+            <img class="highlighted-article__img" src="/assets/img/ArchUnit-Logo.png" alt="" role="decoration">
+        </div>
+        <div class="col-8">
+            <h2>ArchUnit</h2>
+            <p class="article__subtitle">Fabian Sanchez, Javier Escalada - 2021-04-06 10:00:00 +0200</p>
+            <hr>
+        </div>
+        <div class="article col-12">
+            <h2 id="introducción">Introducción</h2>
+
+<p>A la hora de abordar un nuevo proyecto, una vez que se ha decidido la arquitectura software más conveniente, puede que no todos los programadores la conozcan en detalle; si además el proyecto es complejo, pueden manifestarse dudas durante su desarrollo sobre si se ha infringido alguna convención al añadir un cambio.
+<!--more-->
+Si no hay ningún control, la deuda técnica aumentará por muy adecuado que fuera el planteamiento inicial, de este modo la arquitectura se terminará viendo comprometida y el mantenimiento será mucho más costoso.
+Para evitar este problema lo ideal es establecer unas reglas o restricciones formales desde el principio, que se pueda disponer de ellas antes incluso de escribir la primera línea de código y sirvan además como respaldo ante cambios futuros. Siguiendo la misma idea que se aplica en TDD (desarrollo guiado por pruebas) pero a nivel de arquitectura en lugar de para con la funcionalidad (¡aunque ambos enfoques no son excluyentes!).
+La biblioteca de ArchUnit es perfecta para este propósito.</p>
+
+<h2 id="qué-es-archunit">¿Qué es ArchUnit?</h2>
+
+<p>ArchUnit es una librería de código abierto gratuita escrita en Java de fácil integración en el marco de pruebas unitarias que permite verificar que el código se ajusta a la arquitectura acordada para un proyecto Java, es decir, posibilita implementar tests unitarios que prueben las dependencias entre clases, capas, organización de los paquetes, convenciones de codificación, etc.
+Connatural a estos test se obtiene una forma de identificar las reglas de arquitectura utilizadas, facilitando la consolidación de la comprensión de la estructura del proyecto. Aportan valor como pruebas automáticas (de regresión) que pueden ser incluidas en un ciclo de integración continua verificando de forma desatendida (sin necesidad de auditorias o revisiones) la consistencia de la arquitectura permitiendo adelantar en una fase temprana del desarrollo cualquier problema que se detecte.</p>
+
+<p>La forma de incluir ArchUnit en los proyectos Java (Maven o gradle) es muy sencilla, solo hay que añadir la siguiente dependencia al pom.xml:</p>
+
+<pre><code>    &lt;dependency&gt;
+        &lt;groupId&gt;com.tngtech.archunit&lt;/groupId&gt;
+        &lt;artifactId&gt;archunit&lt;/artifactId&gt;
+        &lt;version&gt;0.18.0&lt;/version&gt;
+        &lt;scope&gt;test&lt;/scope&gt;
+    &lt;/dependency&gt;
+</code></pre>
+<p>O en el build.gradle de gradle:</p>
+<pre><code>    dependencies {
+        testImplementation 'com.tngtech.archunit:archunit:0.16.0'
+    }
+</code></pre>
+
+<p>ArchUnit utiliza reflexión y el análisis de bytecode de las clases compiladas para construir las reglas de arquitectura. Además, es muy versátil dado que ofrece varios niveles de abstracción que permiten extender o añadir nuevas reglas de manera sencilla e intuitiva. Estos niveles son los que siguen:</p>
+
+<p>⦁	<em>Core</em>, que se ocupa de la infraestructura básica, es decir, cómo importar código de bytes en objetos Java.</p>
+
+<p>⦁	<em>Lang</em>, contiene la sintaxis de reglas para especificar reglas de arquitectura.</p>
+
+<p>⦁	<em>Library</em>, contiene reglas predefinidas más complejas.</p>
+
+<p>ArchUnit ofrece una Api para cada uno de ellos que detallamos a continuación.</p>
+
+<h3 id="api">Api</h3>
+
+<p><strong>1.- Core</strong></p>
+
+<p>Ofrece un mecanismo de importación de clases por defecto. Cada clase de pruebas puede definir el paquete de clases con el que trabajar, normalmente se hace referencia al paquete raíz de los archivos fuente del proyecto (clases). En este ejemplo sería  <em>org.tms</em></p>
+
+<pre><code>    import com.tngtech.archunit.core.domain.JavaClasses;
+    import com.tngtech.archunit.core.importer.ClassFileImporter;
+    import com.tngtech.archunit.core.importer.ImportOption;
+    …
+    JavaClasses classes = new ClassFileImporter()
+    .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
+    .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_ARCHIVES)
+    .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_JARS)
+    .importPackages("org.tms");
+</code></pre>
+
+<p>Además, como se puede ver en el ejemplo es posible excluir mediante opciones de configuración la importación de archivos (no  <em>.java</em>), clases de tests o  <em>JARs</em>  para que no interfieran en las pruebas.</p>
+
+<p>Este es un uso común de la Api  <em>Core</em>, pero cabe destacar que toda regla implementada utilizando la Api  <em>Lang</em>  puede ser codificada solo utilizando esta api, ocurre que esto da lugar a reglas con un código muy extenso y muy difíciles de comprender (con una sintaxis muy parecida a la de  <em>java reflection</em>). Con la api  <em>Library</em>  ocurre lo mismo pero al revés, toda regla de  <em>Library</em>  puede implementarse usando la Api  <em>Lang</em> , pero estas son reglas predefinidas, varias de ellas transversales válidas para casi cualquier arquitectura que llevaría excesivo tiempo reescribir usando solo la Api  <em>Lang</em>. Con todo, no es algo de lo que preocuparse, veremos que uso tiene cada una y como se combinan entre si (en particular, la referencia <em>classes</em> del objeto de la clase <em>JavaClasses</em> definido en el código de ejemplo será utilizada para aplicar las reglas definidas mediante las apis  <em>Lang</em>  y  <em>Library</em>  en los siguientes apartados).</p>
+
+<p><strong>2.- Lang</strong></p>
+
+<p>Esta Api ofrece una potente sintaxis para expresar reglas de forma abstracta en un lenguaje natural fácilmente comprensible.</p>
+
+<p>Una regla (<em>ArchRule</em>) tiene la siguiente estructura:</p>
+
+<pre><code>ELEMENTS that PREDICATE should CONDITION
+</code></pre>
+
+<p>En la primera parte,  <em>ELEMENTS</em> , se define que conjunto de elementos se pretenden evaluar, normalmente serán  <em>clases</em>  o  <em>métodos</em>  o  <em>ninguna clase</em>  o  <em>ningún método</em>  (pueden ser campos, constructores, bloques de código, etc). las referencias a estos elementos se encuentran en el paquete:</p>
+
+<pre><code>com.tngtech.archunit.lang.syntax.ArchRuleDefinition
+</code></pre>
+
+<p>El predicado (o composición de predicados), <em>PREDICATE</em>, hace referencia a las condiciones que cumplen los elementos, filtrando el conjunto anterior (los elementos que no cumplen el predicado, no se tienen en cuenta).</p>
+
+<p><em>CONDITION</em>, es la condición o condiciones que deben cumplir los elementos anteriores.</p>
+
+<p>Un ejemplo de implementación de una regla con esta Api sería el que sigue:</p>
+<pre><code>    ArchRule rule = ArchRuleDefinition.classes().that().resideInAPackage("..service..")
+	  .should().onlyBeAccessed().byAnyPackage("..controller..", "..service..");
+</code></pre>
+
+<p>En este caso el elemento que queremos que se evalue serán las clases, el predicado indica que estas clases estarán ubicadas en el paquete ..service.. (incluyendo las clases en los subpaquetes) y la condición es que estas clases solo puedan ser accedidas por clases dentro del mismo paquete o del paquete ..controller…</p>
+
+<p>Nota: Las expresiones que definen las rutas de cada paquete siguen la sintaxis descrita en: https://www.javadoc.io/doc/com.tngtech.archunit/archunit/0.10.2/com/tngtech/archunit/base/PackageMatcher.html</p>
+
+<p>Para aplicar una regla a los elementos objeto del test (obtenidos mediante la Api Core) basta con llamar al método  <em><strong>check(…)</strong></em>  de  <em>ArchRule</em> .</p>
+<pre><code>    rule.check(classes);
+</code></pre>
+
+<p>Además, a la regla se le puede agregar en su construcción una llamada al método  <em>because(…)</em>  , pasándole como argumento una cadena de texto donde se puede justificar el uso de la regla, esta es una opción interesante en general y para nuevos desarrolladores en particular dado que redunda en un mayor entendimiento de la arquitectura.</p>
+<pre><code>    ArchRule rule = ArchRuleDefinition.noClasses()
+         .that().resideInAPackage("org.tms.domain..")
+         .should().dependOnClassesThat()
+         .resideInAnyPackage("org.tms.adapters..", "org.tms.application..")
+         .because("existiría un acoplamiento entre la capa de dominio y el resto");
+</code></pre>
+<p>En ulteriores ejemplos que se refieran a reglas, casi la totalidad involucraran esta Api dado que forma el grueso de la implementación de reglas de ArchUnit.</p>
+
+<p><strong>3.- Library</strong></p>
+
+<p>Este nivel ofrece una colección de reglas predefinidas. Es una Api más concisa para patrones más complejos, pero de uso común, abarca desde reglas para validar una arquitectura en capas, puertos y adaptadores (Onion) o verificaciones de ciclos entre segmentos a reglas propias de algunos frameworks como comprobar que la inyección de dependencias de  <em>Spring</em>  no se hace a través de atributos de clase anotados con  <em>@Autowire</em>  .</p>
+<pre><code>    Architectures.OnionArchitecture rule = onionArchitecture()
+    .domainModels(DOMAIN_MODEL_PACKAGES)
+    .domainServices(DOMAIN_SERVICE_PACKAGES)
+    .applicationServices(APPLICATION_LAYER_PACKAGES)
+    .adapter("adapter rest", REST_ADAPTERS_PACKAGES)
+    .adapter("adapter persistence", PERSISTENCE_ADAPTERS_PACKAGES);
+
+    ArchRule otherRule = GeneralCodingRules.NO_CLASSES_SHOULD_USE_FIELD_INJECTION;
+</code></pre>
+
+<h3 id="aspectos-a-cubrir-con-las-reglas-arquitectónicas">Aspectos a cubrir con las reglas arquitectónicas</h3>
+
+<p>En lo que sigue se expodrán unos ejemplos práticos de la reglas utilizadas en un proyecto ficticio cuyo código fuente y tests pueden encontrase en el enlace al final de este artículo.</p>
+
+<p>Este proyecto es un ejemplo de aplicación siguiendo una arquitectura <em>Onion</em> (refinamiento de la arquitectura de puertos-adaptadores) con algunos requisitos arquitectónicos añadidos para ilustrar posibles arquetipo de reglas definidas con ArchUnit. Su diagrama de componentes sería el siguiente:</p>
+
+<p><img src="/assets/img/archunit/diagram.png" alt="components" /></p>
+
+<h3 id="convenciones-de-nomenclatura">Convenciones de nomenclatura</h3>
+<h4 id="paquetes-clases-métodos-etc">(paquetes, clases, métodos, etc.)</h4>
+
+<p>Se puede establecer, por ejemplo, una regla para que toda clase con la anotación <em>@Configuration</em> del framework de <em>Spring</em> deba nombrarse con la terminación <em>…Configuration</em> (y ubicarse en la capa de adaptadores):</p>
+<pre><code>    ArchRule rule = ArchRuleDefinition.classes()
+    .that().areAnnotatedWith(Configuration.class)
+    .should().haveSimpleNameEndingWith("Configuration")
+    .andShould().resideInAnyPackage("org.tms.adapters..");
+</code></pre>
+
+<h3 id="convenciones-de-codificación">Convenciones de codificación</h3>
+<h4 id="atributos-métodos-modificadores-de-acceso-constructores-inicializadores-etc">(atributos, métodos, modificadores de acceso, constructores, inicializadores, etc.)</h4>
+
+<p>Por ejemplo, se puede disponer una regla para que toda clase <em>Utils</em> (normalmente contienen métodos públicos estáticos que no pueden encapsularse en un objeto, esto también se puede verificar implementando otras reglas que complementen la regla del ejemplo) debe tener un constructor privado para evitar su instanciación.</p>
+
+<pre><code>    ArchRule rule = ArchRuleDefinition.constructors()
+    .that().areDeclaredInClassesThat().haveSimpleNameEndingWith("Utils")
+    .should().bePrivate();
+</code></pre>
+
+<h3 id="contenido">Contenido</h3>
+<h4 id="paquetes-clases-etc">(paquetes, clases, etc.)</h4>
+<p>Se puede especificar una regla para que <em>ninguna</em> clase definida con la notación <em>@Repository</em> de <em>Spring</em> pueda ubicarse fuera del paquete de persistencia de la capa de adaptadores, dado que estas clases dependen completamente del framework y la base de datos utilizada (en este caso MongoDB)</p>
+
+<pre><code>    ArchRule rule = ArchRuleDefinition.noClasses()
+    .that().areAnnotatedWith(Repository.class)
+    .should().resideOutsideOfPackage("org.tms.adapters.persistence..");
+</code></pre>
+
+<h3 id="dependencias--relaciones">Dependencias / Relaciones</h3>
+<h4 id="entre-capas-entre-paquetes-entre-clases-etc">(entre capas, entre paquetes, entre clases, etc.)</h4>
+<p>Se puede hacer uso de la Api <em>Library</em> para establecer que no pueda haber ninguna interdependencia entre adaptadores, por ejemplo entre el adaptador que permite la comunicación mediante una Api <em>rest</em> y el adaptador para la persistencia en base de datos.
+Se entiende por dependencia cualquier relación entre clases, ya sea de herencia, composición, uso de parámetros o tipo de retorno en los métodos, etc.</p>
+
+<pre><code>    SliceRule rule = SlicesRuleDefinition.slices()
+    .matching("org.tms.adapters.(*)")
+    .should().notDependOnEachOther();
+</code></pre>
+
+<h3 id="dependencias-cíclicas-entre-capas">Dependencias cíclicas entre capas</h3>
+
+<p>De manera análoga al anterior ejemplo, se puede generalizar la regla para que comprenda varios paquetes (o clases) como vértices formando grafos cerrados con sus dependencias como arístas.</p>
+<pre><code>    SliceRule rule = SlicesRuleDefinition.slices()
+    .matching("org.tms.(*)..")
+    .should().beFreeOfCycles();
+</code></pre>
+
+<p><strong>Nota:</strong> Las regla para dependencias cíclicas puede ser configuradas para permitir un valor máximo de ciclos además de un número máximo de dependencias por ciclo. Es necesario incluir un fichero de propiedades (<em>archunit.properties</em>) con estos valores (<em>cycles.maxNumberToDetect</em> y <em>cycles.maxNumberOfDependenciesPerEdge</em>) para que ArchUnit los reconozca.</p>
+
+<h3 id="herencia">Herencia</h3>
+
+<p>Se puede establecer que todo servicio de aplicación nombrado con la terminación <em>UseCase</em> (de lo que se deduce que un servicio de aplicación debe cubrir un caso de uso) deba implementar la interfaz <em>CarSalesService</em>.</p>
+
+<pre><code>    ArchRule rule = ArchRuleDefinition.classes()
+    .that().haveSimpleNameEndingWith("UseCase")
+    .should().implement(CarSalesService.class);
+    rule.check(classes);
+</code></pre>
+
+<h3 id="uso-de-anotaciones">Uso de anotaciones</h3>
+
+<p>Por ejemplo que toda clase con terminación <em>Document</em> que supone una referencia a una entidad de persistencia y deba utilizar la notación <em>@Document</em> de <em>Spring Data JDBC</em>, asimismo que deba estar ubicada dentro del adaptador de persistencia.</p>
+
+<pre><code>    ArchRule rule = ArchRuleDefinition.classes()
+    .that().haveSimpleNameEndingWith("Document")
+    .should().beAnnotatedWith(Document.class).andShould().resideOutsideOfPackage("org.tms.adapters.persistence..");
+</code></pre>
+
+<h3 id="restricciones">Restricciones</h3>
+
+<p>La siguiente regla utiliza la Api <em>Library</em> nuevamente para chequear que no se lanza ninguna excepción genérica en ningún método de ninguna clase.</p>
+
+<pre><code>    ArchRule rule = ArchRuleDefinition.noClasses()
+    .should(GeneralCodingRules.THROW_GENERIC_EXCEPTIONS);
+</code></pre>
+
+<h3 id="personalización">Personalización</h3>
+
+<p>ArchUnit ofrece una Api muy completa, es difícil que haya una regla que no pueda ser expresada mediante la sintaxis de la Api Lang, pero con todo si esto ocurre, ArchUnit  permite su extensión de manera rápida y sencilla implementado el método abstracto check de la clase ArchCondition o apply de DescribedPredicate. Por ejemplo:</p>
+
+<pre><code>ArchRule rule = ArchRuleDefinition.noMethods().should(haveMoreThanSixParameters());
+...
+public ArchCondition&lt;JavaMethod&gt; haveMoreThanSixParameters() {
+    return new ArchCondition&lt;&gt;("have more than six parameters") {
+        @Override
+        public void check(JavaMethod javaMethod, ConditionEvents conditionEvents) {
+            boolean satisfied = javaMethod.reflect().getParameterCount() &gt; 6;
+            conditionEvents.add(new SimpleConditionEvent(javaMethod, satisfied,
+            String.format("method %s from class %s has %s than '%s' parameters", 
+				javaMethod.getName(), javaMethod.getOwner().getName(),
+				satisfied ? "more" : "minus (or equals to)", "six")));
+        }
+    }
+</code></pre>
+
+<p>Establecemos una <em>archCondition</em> personalizada instanciada para el tipo específico JavaMethod (del Core de ArchUnit), de manera que se cuente los parámetros de cada método y evalue que no supere 6 argumentos.</p>
+
+<p>Las reglas para arquitecturas en capas particulares también pueden ser definidas mediante la Api  <em>Library</em>  , siempre y cuando estén basadas en capas (si no habría que utilizar las otras Apis):</p>
+
+<pre><code>    private static Architectures.LayeredArchitecture portsAndAdaptersArchitecture = Architectures
+        .layeredArchitecture()
+        .layer("domain layer").definedBy("org.tms.domain..")
+        .layer("application layer").definedBy("org.tms.application..")
+        .layer("adapter layer").definedBy("org.tms.adapters..");
+
+    ArchRule rule = portsAndAdaptersArchitecture.whereLayer("domain layer")
+            .mayOnlyBeAccessedByLayers("application layer");
+</code></pre>
+<h3 id="integración-con-plantuml">Integración con plantUml</h3>
+
+<p>ArchUnit permite la integración con diagramas de componentes desarrollados con  <em>PlantUML</em>  , simplificando (aún más si cabe) la construcción de las reglas de validación de las relaciones entre componentes, de manera que no haya que escribir varías reglas para asegurarse de que la codificación sigue el diagrama planteado.
+En este ejemplo se ha importado el diagrama mostrado al principio de este artículo y se ha establecido que se consideren solo las dependencias descritas en él (no se tienen en cuenta relaciones implícitas propias de Java, como que toda clase hereda de la clase Object).</p>
+
+<pre><code>    ArchRule rule = ArchRuleDefinition.classes().should(
+    PlantUmlArchCondition.adhereToPlantUmlDiagram(this.getClass().getResource("template_archunit.puml"),
+    PlantUmlArchCondition.Configurations.consideringOnlyDependenciesInDiagram()));
+</code></pre>
+<h3 id="errores">Errores</h3>
+
+<p>Cuando se incumple una regla en un test, ArchUnit muestra un mensaje detallado de la infracción, indicando el número de veces que se ha infringido la regla, así como las clases implicadas, por ejemplo (utilizando el test de dependencias cíclicas entre capas):</p>
+
+<h1><img src="/assets/img/archunit/diagram2.png" alt="alt text" /></h1>
+<pre><code>@Test
+public void layersShouldBeFreeOfCycles() {
+    SliceRule rule = SlicesRuleDefinition.slices()
+    .matching("org.tms.(*)..")
+    .should().beFreeOfCycles();
+    rule.check(classes);
+}
+</code></pre>
+
+<p><em>java.lang.AssertionError: Architecture Violation [Priority: MEDIUM] - Rule ‘slices matching ‘org.tms.(*)..’ should be free of cycles’ was violated (1 times):
+Cycle detected: <strong>Slice adapters -&gt; Slice application -&gt; Slice adapters</strong>
+Dependencies of Slice adapters
+Class &lt;org.tms.<strong>adapters.persistence</strong>.CarSalesAdapterRepository&gt; implements interface &lt;org.tms.<strong>application.ports</strong>.CarSalesPort&gt;
+…
+Dependencies of Slice application
+Field &lt;org.tms.<strong>application.services</strong>.RegisterCarUseCase.r&gt; has type &lt;org.tms.<strong>adapters.persistence</strong>.CarSalesDelegatedRepository&gt; in (RegisterCarUseCase.java:0)</em></p>
+
+<p>En este caso ArchUnit ha revelado que además de una relación entre la capa de adaptadores y aplicación existe otra clase de la capa de aplicación que depende de una clase de la capa de adaptadores.</p>
+
+<h3 id="código-legacy">Código legacy</h3>
+
+<p>En proyectos legacy también podemos integrar ArchUnit. En estos casos es habitual encontrar que el código provoque multitud de infracciones que se tengan que una corrección no trivial que deba postergarse.</p>
+
+<p>Este código deberá estar cubierto por pruebas de arquitectura que garanticen que al menos no aumenten las transgresiones ya existentes.</p>
+
+<p>Lo que haremos será ignorar las infracciones actuales basadas en coincidencias de expresiones regulares simples.
+Para ello, incluiremos un archivo con el nombre <em>archunit_ignore_patterns.txt</em> en la carpeta de recursos del proyecto.</p>
+
+<p>Por ejemplo, imaginemos que la clase  <em>org.tms.LegacyService</em>  o  <em>org.tms.adapters.persistence.LegacyCarSalesRepository</em>  tienen muchas infracciones. Cubrimos estas clases agregando al archivo archunit_ignore_patterns.txt la siguiente linea:</p>
+
+<pre><code>.*Legacy*.*
+</code></pre>
+
+<p>Esta línea se interpretará como una expresión regular y se comparará con las infracciones notificadas. Se ignorarán las infracciones con un mensaje que coincida con el patrón.</p>
+
+<p>Como se ha comentado anteriormente, podemos encontrarnos con proyectos que tengan un número demasiado elevado de infracciones como para corregirlas en el momento de detectarse.
+Una forma de abordar este problema es establecer un enfoque iterativo, que evite que la base del código se deteriore más.
+Para ello nos podemos apoyar en  <em>FreezingArchRule</em>  . Estas reglas permiten registrar las infracciones en fichero interno <em>ViolationStore</em>  .
+Al istanciar una  <em>ArchRule</em>  y aplicar FreezingArchRule.freeze(archRule), podemos registrar todas las infracciones actuales y evitar que se agreguen nuevas.
+Esto permite ignorar una regla la primera vez que se ejecuta y mientras no se resuelva la infracción, es decir, una vez resuelta, la regla no volverá a ignorarse.</p>
+
+<p>Para aplicarse requiere que el fichero  <em>archunit.properties</em>  tenga las propiedades:</p>
+
+<p>freeze.store.default.allowStoreCreation=true
+(por defecto es false)
+freeze.store.default.allowStoreUpdate=false
+(por defecto es true)</p>
+
+<p>Por defecto, FreezingArchRulese utiliza un  <em>ViolationStore</em>  simple basado en texto sin formato.
+Esto es suficiente para agregar estos archivos a cualquier sistema de control de versiones para realizar un seguimiento continuo del progreso.
+Se puede configurar la ubicación de  <em>ViolationStore</em>  en  <em>archunit.properties</em>:</p>
+
+<p><em>freeze.store.default.path=/….</em></p>
+
+<p>Ejemplo de cómo quedarían las reglas:</p>
+<pre><code>    FreezingArchRule freezeRule = FreezingArchRule.freeze(ArchRuleDefinition.classes()
+    .that().resideInAPackage("org.tms.domain..")
+    .should().onlyBeAccessed().byAnyPackage("org.tms.domain..", "org.tms.application.."));
+</code></pre>
+<h2 id="conclusiones">Conclusiones</h2>
+
+<p>ArchUnit ofrece una poderosa herramienta para mantener la validez de los requisitos arquitectónicos de cualquier proyecto java durante todo su ciclo de vida. Fomenta el uso de buenas prácticas acordes a las arquitecturas propuestas y ayuda a entender las mismas mediante la definición de reglas fácilmente expresables. Estas reglas hacen un tratamiento homogéneo de cualquier aspecto relacionado con la arquitectura.</p>
+
+<p>Su integración en los proyectos ya sean nuevos o heredados es muy fácil y permite estandarizar un conjunto de tests favoreciendo la normalización de las arquitecturas.
+También su curva de aprendizaje es mínima, basta con codificar un test y el paradigma se asume rápidamente.</p>
+
+<p>No hemos encontrado ninguna razón para no usarlo, al menos… ¡no la hay para no probarlo!</p>
+
+<h2 id="código-fuente">Código fuente</h2>
+
+<p>https://github.com/FabianSR/archunit-example-template</p>
+
+        </div>
+    </article>
+</section>
+        </div>
+    </main>
+    <footer class="footer grid-center">
+    <div class="footer__container"></div>
+</footer>
+</body>
+</html>
